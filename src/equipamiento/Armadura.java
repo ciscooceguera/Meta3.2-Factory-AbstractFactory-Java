@@ -1,4 +1,11 @@
 package equipamiento;
 
-public class Armadura {
+import personajes.Personaje;
+
+public interface Armadura {
+    int getDefensa();
+
+    String getNombre();
+
+    void proteger(Personaje portador, int daño);
 }
