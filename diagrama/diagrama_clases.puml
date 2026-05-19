@@ -1,0 +1,224 @@
+@startuml
+top to bottom direction
+
+title Meta 3.2 - Factory Method y Abstract Factory
+
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam nodesep 20
+skinparam ranksep 55
+
+' =========================
+' PAQUETE APP
+' =========================
+
+package app {
+    class JuegoDemo {
+        +main(args: String[]): void
+    }
+}
+
+' =========================
+' PAQUETE MENU
+' =========================
+
+package menu {
+    class MenuJugador {
+        +crearPersonajeDesdeMenu(): Personaje
+        +seleccionarEquipamientoDesdeMenu(): FabricaEquipamiento
+    }
+}
+
+' =========================
+' PAQUETE SERVICIO
+' =========================
+
+package servicio {
+    class EquipadorPersonaje {
+        +equipar(personaje: Personaje, fabrica: FabricaEquipamiento): void
+    }
+}
+
+' =========================
+' FACTORY METHOD
+' =========================
+
+package fabricas {
+    interface FabricaPersonajes {
+        +crearPersonaje(nombre: String): Personaje
+    }
+
+    class FabricaGuerrero
+    class FabricaMago
+    class FabricaArquero
+
+    FabricaPersonajes -[hidden]down-> FabricaGuerrero
+    FabricaGuerrero -[hidden]down-> FabricaMago
+    FabricaMago -[hidden]down-> FabricaArquero
+}
+
+' =========================
+' PERSONAJES
+' =========================
+
+package personajes {
+    interface Personaje {
+        +getNombre(): String
+        +getVida(): int
+        +atacar(objetivo: Personaje): void
+        +mostrarInfo(): void
+    }
+
+    abstract class PersonajeBase {
+        #nombre: String
+        #nivel: int
+        #vida: int
+        #arma: Arma
+        #armadura: Armadura
+    }
+
+    class Guerrero {
+        -fuerza: int
+    }
+
+    class Mago {
+        -mana: int
+        -dañoMagico: int
+    }
+
+    class Arquero {
+        -punteria: int
+    }
+
+    class Goblin {
+        -fuerza: int
+    }
+
+    Personaje -[hidden]down-> PersonajeBase
+    PersonajeBase -[hidden]down-> Guerrero
+    Guerrero -[hidden]down-> Mago
+    Mago -[hidden]down-> Arquero
+    Arquero -[hidden]down-> Goblin
+}
+
+' =========================
+' ABSTRACT FACTORY
+' =========================
+
+package fabricasEquipamiento {
+    interface FabricaEquipamiento {
+        +crearArma(): Arma
+        +crearArmadura(): Armadura
+    }
+
+    class FabricaVikingo
+    class FabricaElfica
+    class FabricaDemoniaca
+
+    FabricaEquipamiento -[hidden]down-> FabricaVikingo
+    FabricaVikingo -[hidden]down-> FabricaElfica
+    FabricaElfica -[hidden]down-> FabricaDemoniaca
+}
+
+' =========================
+' EQUIPAMIENTO
+' =========================
+
+package equipamiento {
+    interface Arma {
+        +getDaño(): int
+        +getNombre(): String
+        +usar(portador: Personaje, objetivo: Personaje): void
+    }
+
+    class HachaDosManos
+    class ArcoElfico
+    class EspadaDemoniaca
+
+    interface Armadura {
+        +getDefensa(): int
+        +getNombre(): String
+        +proteger(portador: Personaje, daño: int): void
+    }
+
+    class CueroMetal
+    class TunicaHojas
+    class EscamasDragon
+
+    Arma -[hidden]down-> HachaDosManos
+    HachaDosManos -[hidden]down-> ArcoElfico
+    ArcoElfico -[hidden]down-> EspadaDemoniaca
+    EspadaDemoniaca -[hidden]down-> Armadura
+    Armadura -[hidden]down-> CueroMetal
+    CueroMetal -[hidden]down-> TunicaHojas
+    TunicaHojas -[hidden]down-> EscamasDragon
+}
+
+' =========================
+' CADENA PRINCIPAL VERTICAL
+' =========================
+
+JuegoDemo -down-> MenuJugador : usa
+MenuJugador -down-> FabricaPersonajes : crea personaje
+FabricaPersonajes -down-> Personaje : retorna
+JuegoDemo -down-> EquipadorPersonaje : usa
+EquipadorPersonaje -down-> FabricaEquipamiento : crea equipamiento
+FabricaEquipamiento -down-> Arma : crea
+FabricaEquipamiento -down-> Armadura : crea
+
+' =========================
+' RELACIONES FACTORY METHOD
+' =========================
+
+FabricaPersonajes <|.. FabricaGuerrero
+FabricaPersonajes <|.. FabricaMago
+FabricaPersonajes <|.. FabricaArquero
+
+FabricaGuerrero -down-> Guerrero : crea
+FabricaMago -down-> Mago : crea
+FabricaArquero -down-> Arquero : crea
+
+' =========================
+' RELACIONES DE PERSONAJES
+' =========================
+
+Personaje <|.. PersonajeBase
+PersonajeBase <|-- Guerrero
+PersonajeBase <|-- Mago
+PersonajeBase <|-- Arquero
+PersonajeBase <|-- Goblin
+
+PersonajeBase -down-> Arma : tiene
+PersonajeBase -down-> Armadura : tiene
+
+' =========================
+' RELACIONES ABSTRACT FACTORY
+' =========================
+
+FabricaEquipamiento <|.. FabricaVikingo
+FabricaEquipamiento <|.. FabricaElfica
+FabricaEquipamiento <|.. FabricaDemoniaca
+
+FabricaVikingo -down-> HachaDosManos : crea
+FabricaVikingo -down-> CueroMetal : crea
+
+FabricaElfica -down-> ArcoElfico : crea
+FabricaElfica -down-> TunicaHojas : crea
+
+FabricaDemoniaca -down-> EspadaDemoniaca : crea
+FabricaDemoniaca -down-> EscamasDragon : crea
+
+' =========================
+' RELACIONES DE PRODUCTOS
+' =========================
+
+Arma <|.. HachaDosManos
+Arma <|.. ArcoElfico
+Arma <|.. EspadaDemoniaca
+
+Armadura <|.. CueroMetal
+Armadura <|.. TunicaHojas
+Armadura <|.. EscamasDragon
+@enduml
